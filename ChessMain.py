@@ -58,12 +58,17 @@ def main():
                     player_clicks.append(sq_select)
                 if len(player_clicks) == 2:
                     move = ChessEngine.Move(player_clicks[0], player_clicks[1], gs.board)
-                    print(move.get_chess_notation())
+                    # print(move.get_chess_notation())
                     if move in valid_moves:
+                        print(move.get_chess_notation())
+
                         gs.make_move(move)
                         move_made = True
-                    sq_select = ()
-                    player_clicks = []
+                        sq_select = ()
+                        player_clicks = []
+                    else:
+                        player_clicks = [sq_select]
+
             elif e.type == p.KEYDOWN:   # z undo the last move
                 if e.key == p.K_z:
                     gs.undo_move()
@@ -72,7 +77,6 @@ def main():
         if move_made:
             valid_moves = gs.get_valid_moves()
             move_made = False
-
 
         draw_game_state(screen, gs)
         clock.tick(MAX_FPS)

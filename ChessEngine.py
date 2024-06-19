@@ -43,12 +43,20 @@ class GameState:
 
         self.whiteToMove = True
         self.moveLog = []
+        self.white_king_location = (7, 4)
+        self.black_king_location = (0, 4)
+        self.check_mate = False
+        self.stale_mate = False
 
     def make_move(self, move):
         self.board[move.start_row][move.start_col] = "--"
         self.board[move.end_row][move.end_col] = move.piece_moved
         self.moveLog.append(move)  # Log the move
         self.whiteToMove = not self.whiteToMove
+        if move.piece_moved == 'wK':
+            self.white_king_location = (move.end_row, move.end_col)
+        elif move.piece_moved == 'bK':
+            self.black_king_location = (move.end_row, move.end_col)
 
     def undo_move(self):
         if len(self.moveLog) != 0:
@@ -56,9 +64,48 @@ class GameState:
             self.board[move.start_row][move.start_col] = move.piece_moved
             self.board[move.end_row][move.end_col] = move.piece_captured
             self.whiteToMove = not self.whiteToMove
+            if move.piece_moved == 'wK':
+                self.white_king_location = (move.start_row, move.start_col)
+            elif move.piece_moved == 'bK':
+                self.black_king_location = (move.start_row, move.start_col)
 
     def get_valid_moves(self):
-        return self.get_all_possible_moves()
+        #1  Generate all possibles moves
+        moves = self.get_all_possible_moves()
+        #2  For each move, make the move
+        for i in range(len(moves)-1, -1, -1):
+            self.make_move(moves[i])
+            #3  Generate all opponent's moves
+            #4  For each of your opponent's moves, see if they attack your king
+            self.whiteToMove = not self.whiteToMove
+            if self.in_check():
+                moves.remove(moves[i])
+            self.whiteToMove = not self.whiteToMove
+            self.undo_move()
+        if len(moves) == 0:
+            if self.in_check():
+                self.check_mate = True
+            else:
+                self.stale_mate = True
+        else:
+            self.check_mate = False
+            self.stale_mate = False
+        return moves
+
+    def in_check(self):
+        if self.whiteToMove:
+            return self.square_under_attack(self.white_king_location[0], self.white_king_location[1])
+        else:
+            return self.square_under_attack(self.black_king_location[0], self.black_king_location[1])
+
+    def square_under_attack(self, r, c):
+        self.whiteToMove = not self.whiteToMove
+        opp_moves = self.get_all_possible_moves()
+        self.whiteToMove = not self.whiteToMove
+        for move in opp_moves:
+            if move.end_row == r and move.end_col == c:
+                return True
+        return False
 
     def get_all_possible_moves(self):
         moves = []
