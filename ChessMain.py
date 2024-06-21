@@ -5,7 +5,7 @@ displaying the current GameState object.
 """
 
 import pygame as p
-import ChessEngine
+import ChessEngine, SmartMoveFinder
 
 WIDTH = HEIGHT = 512
 DIMENSION = 8
@@ -44,12 +44,15 @@ def main():
     sq_select = ()  # no square is selected, keeps track of the last click of the user (tuple: (col, row))
     player_clicks = []  # keeps track of the player clicks (two tuples: [(6, 4), (4, 4)])
     gameOver = False
+    playerOne = False    # True for human, False for AI (white)
+    playerTwo  = False   # True for human, False for AI (black)
     while running:
+        humanTurn = (gs.whiteToMove and playerOne) or (not gs.whiteToMove and playerTwo)
         for e in p.event.get():
             if e.type == p.QUIT:
                 running = False
             elif e.type == p.MOUSEBUTTONDOWN:
-                if not gameOver:
+                if not gameOver and humanTurn:
                     location = p.mouse.get_pos()    # (x, y) location of the mouse
                     col = location[0] // SQ_SIZE
                     row = location[1] // SQ_SIZE
@@ -85,6 +88,15 @@ def main():
                     move_made = False
                     animate = False
 
+
+        # AI move finder logic
+        if not gameOver and not humanTurn:
+            AImove = SmartMoveFinder.findBestMove(gs, valid_moves)
+            if AImove is None:
+                AImove = SmartMoveFinder.findRandomMove(valid_moves)
+            gs.makeMove(AImove)
+            move_made = True
+            animate = True
 
 
         if move_made:
