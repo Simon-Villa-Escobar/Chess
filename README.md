@@ -25,8 +25,8 @@ Este es un proyecto de un juego de ajedrez escrito en Python, inspirado por los 
 
 1. Clona el repositorio:
     ```sh
-    git clone https://github.com/tuusuario/tu-repositorio.git
     cd tu-repositorio
+    git clone https://github.com/Simon-Villa-Escobar/Chess.git
     ```
 
 2. Instala las dependencias:
