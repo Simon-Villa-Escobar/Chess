@@ -47,7 +47,7 @@ def main():
     sq_select = ()  # no square is selected, keeps track of the last click of the user (tuple: (col, row))
     player_clicks = []  # keeps track of the player clicks (two tuples: [(6, 4), (4, 4)])
     gameOver = False
-    playerOne = False    # True for human, False for AI (white)
+    playerOne = True    # True for human, False for AI (white)
     playerTwo  = False   # True for human, False for AI (black)
     while running:
         humanTurn = (gs.whiteToMove and playerOne) or (not gs.whiteToMove and playerTwo)
@@ -67,7 +67,7 @@ def main():
                         player_clicks.append(sq_select)
                     if len(player_clicks) == 2:
                         move = ChessEngine.Move(player_clicks[0], player_clicks[1], gs.board)
-                        print(move.getChessNotation())
+                        # print(move.getChessNotation())
                         for i in range(len(valid_moves)):
                             if move == valid_moves[i]:
                                 gs.makeMove(valid_moves[i])
