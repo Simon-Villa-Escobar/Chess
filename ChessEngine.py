@@ -1,21 +1,21 @@
-'''
+"""
 Class responsible for storing information about state of chess game
 Determines valid moves at current position and keeps move log
-'''
+"""
 HEXAPAWN = "HEXAPAWN"
 CHESS = "Chess"
 WHITE = "WHITE"
 BLACK = "BLACK"
 
-class GameState():
+class GameState:
     def __init__(self, gameMode=CHESS):
-        '''
-        Board is an 8x8 2 dimensional list
+        """
+        Board is a 8x8 2 dimensional list
         Each element of the list is 2 characters
         1st character is color
         2nd Character represents piece type
         -- represents empty square
-        '''
+        """
 
         self.gameMode = gameMode
         
@@ -119,9 +119,9 @@ class GameState():
             self.currentCastlingRight.bqs))
 
     def undoMove(self):
-        '''
+        """
         Resets board position based on move log
-        '''
+        """
         if len(self.moveLog) != 0:
             move = self.moveLog.pop() # Pop most recently added move out of the log
             self.board[move.startRow][move.startCol] = move.pieceMoved # Move piece back
@@ -192,10 +192,10 @@ class GameState():
                     self.currentCastlingRight.bks = False
 
     def getValidMoves(self):
-        '''
+        """
         Algorithm for checking moves
         Very slow, first place to make improvements
-        '''
+        """
         moveFunction = {CHESS: self.getChessMoves,
                         HEXAPAWN: self.getHexapawnMoves,}
         return moveFunction[self.gameMode]()
@@ -263,19 +263,19 @@ class GameState():
         return False
      
     def inCheck(self):
-        '''
+        """
         Helper method for determinig if king is in check
-        '''
+        """
         if self.whiteToMove:
             return self.squareUnderAttack(self.whiteKingLocation[0], self.whiteKingLocation[1])
         else:
             return self.squareUnderAttack(self.blackKingLocation[0], self.blackKingLocation[1])
 
     def squareUnderAttack(self, r, c):
-        '''
+        """
         Helper method for determining if a square is under attack
         Used for castling logic
-        '''
+        """
         self.whiteToMove = not self.whiteToMove
         oppMoves = self.getAllPossibleMoves()[0]
         self.whiteToMove = not self.whiteToMove
@@ -285,10 +285,10 @@ class GameState():
         return False
 
     def getAllPossibleMoves(self):
-        '''
+        """
         Determines all possible moves before filtering for whether or not your king will be put in check
         Returns: moves (list), pieces (list)
-        '''
+        """
         moves = []
         pieces = []
         for r in range(len(self.board)):
@@ -315,9 +315,9 @@ class GameState():
     
 
     def getPawnMoves(self, r, c, moves):
-        '''
+        """
         Logic for pawn moves
-        '''
+        """
         if self.whiteToMove:  # white pawn move
             if self.board[r - 1][c] == "--":  # the square in front of a pawn is empty
                 # startSquare, endSquare, board
@@ -357,9 +357,9 @@ class GameState():
                     moves.append(Move((r, c), (r + 1, c + 1), self.board, isEnpassantMove=True))
 
     def getRookMoves(self, r, c, moves):
-        '''
+        """
         Logic for rook moves
-        '''
+        """
         directions = ((-1, 0), (0, -1), (1, 0), (0, 1)) # Rooks can move up, down, left, and right
         enemyTeam = 'b' if self.whiteToMove else 'w' # Enemy pieces can be captured so need different logic for enemy pieces and friendly pieces
         for d in directions:
@@ -379,10 +379,10 @@ class GameState():
                     break
 
     def getBishopMoves(self, r, c, moves):
-        '''
+        """
         Logic for Bishop moves
         Almost identical to Rook moves but directions are different
-        '''
+        """
         directions = ((-1, -1), (-1, 1), (1, -1), (1, 1)) # Bishops move diagonally
         enemyTeam = 'b' if self.whiteToMove else 'w'
         for d in directions:
@@ -402,9 +402,9 @@ class GameState():
                     break
 
     def getKnightMoves(self, r, c, moves):
-        '''
+        """
         Logic for knight moves
-        '''
+        """
         jumps = ((-2, -1), (-2, 1), (-1, -2), (-1, 2), (1, -2), (1, 2), (2, -1), (2, 1))
         allyTeam = 'w' if self.whiteToMove else 'b'
         for j in jumps:
@@ -416,16 +416,16 @@ class GameState():
                     moves.append(Move((r, c), (endRow, endCol), self.board))
 
     def getQueenMoves(self, r, c, moves):
-        '''
+        """
         Queen just moves like a rook and a bishop combined so no need for any unique code
-        '''
+        """
         self.getRookMoves(r, c, moves)
         self.getBishopMoves(r, c, moves)
 
     def getKingMoves(self, r, c, moves):
-        '''
+        """
         Logic for king moves
-        '''
+        """
         directions = ((-1, 0), (0, -1), (1, 0), (0, 1), (-1, -1), (-1, 1), (1, -1), (1, 1))
         allyTeam = 'w' if self.whiteToMove else 'b'
         for i in range(8):
@@ -437,8 +437,8 @@ class GameState():
                     moves.append(Move((r, c), (endRow, endCol), self.board))
 
     def getCastleMoves(self, r, c, moves):
-        '''
-        '''
+        """
+        """
         if self.squareUnderAttack(r, c):
             return
         if (self.whiteToMove and self.currentCastlingRight.wks) or (
@@ -465,13 +465,13 @@ class GameState():
         self.board = self.hexapawnBoard
 
     def toHexapawnNetworkInput(self):
-        '''
+        """
         Converts the current board to a 1D array of 21 values
         The first 9 values represent the placement of whites pawns
         The next 9 values represent the placement of black pawns
         The last 3 values represent which players turn it is
         1 for each piece and 0 for empty spaces
-        '''
+        """
         networkInput = []
         for r in range(len(self.board)):
             for c in range(len(self.board[r])):
@@ -494,10 +494,10 @@ class GameState():
                 networkInput.append(0)
         return networkInput
 
-class Move():
-    '''
+class Move:
+    """
     Class for handling moves and special move logic like en passant, castling, and promotion are handled here
-    '''
+    """
     # Dictionaries for mapping row and column numbers to chess notation
     ranksToRows = {'1': 7, '2': 6, '3': 5, '4': 4,
                    '5': 3, '6': 2, '7': 1, '8': 0}
